@@ -16,10 +16,10 @@ public class AutoFitTextView {
     private ViewTreeObserver.OnGlobalLayoutListener onGlobalLayoutListener;
     private View.OnTouchListener onTouchListener;
 
-    private boolean inChanging = false;
-    private boolean isBlockedScrolling;
+    protected boolean inChanging = false;
+    protected boolean isBlockedScrolling;
 
-    private int scaleChances = 0;
+    protected int scaleChances = 0;
 
     public static AutoFitTextView with(ScrollView scrollView, ViewGroup childView){
         final AutoFitTextView autoFitTextView = new AutoFitTextView();
@@ -58,7 +58,7 @@ public class AutoFitTextView {
         final ScrollView scrollView = scrollViewReference.get();
         final ViewGroup internalLayout = internalLayoutReference.get();
 
-        if (scrollView != null && internalLayout != null && !inChanging && !isBlockedScrolling) {
+        if (scrollView != null && internalLayout != null && !inChanging) {
             process(scrollView, internalLayout);
         }
     }
@@ -79,6 +79,7 @@ public class AutoFitTextView {
             Log.d("autofit", "nth todo");
             scrollView.setVisibility(View.VISIBLE);
 
+            scaleChances = 0;
             isBlockedScrolling = true;
         }
     }

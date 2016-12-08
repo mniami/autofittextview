@@ -1,18 +1,16 @@
 package pl.bydgoszcz.guideme.autofittextview;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.text.Html;
+import android.view.ViewTreeObserver;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.*;
 
 /**
  * Instrumentation test, which will execute on an Android device.
@@ -22,6 +20,45 @@ import static org.junit.Assert.*;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class AutoFitTextViewTest {
+    private static final String SAMPLE_TEXT = "<h1>LONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXT\n" +
+            "LONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXT\n" +
+            "LONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXT</h1>";
+    private AutoFitTextView autoFitTextView;
+    private TestActivity testActivity;
+    private boolean testFinished;
     @Rule
-    public ActivityTestRule<Activity> activityRule = new ActivityTestRule<>(Activity.class);
+    public ActivityTestRule<TestActivity> activityRule = new ActivityTestRule<>(TestActivity.class);
+
+    @Before
+    public void setUp() {
+        testActivity = activityRule.getActivity();
+
+        testActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                autoFitTextView = AutoFitTextView.with(testActivity.scrollView, testActivity.linearLayout);
+            }
+        });
+    }
+
+    @After
+    public void tearDown() {
+    }
+
+    @Test
+    public void test1() throws InterruptedException {
+        while (!testActivity.created) {
+            Thread.sleep(100);
+        }
+        testActivity.scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                System.out.print("hello");
+            }
+        });
+        testActivity.textView1.setText(Html.fromHtml(SAMPLE_TEXT));
+        while (!autoFitTextView.isBlockedScrolling) {
+            Thread.sleep(100);
+        }
+    }
 }
