@@ -1,5 +1,8 @@
 # AutoFitTextView
 
+## Component condition
+Please notice it is very early version of this product.
+
 ## Problem solving
 Implementation that auto fit your internal layout to the boundries defined by wrapped **ScrollView**.
 
