@@ -88,8 +88,9 @@ public class AutoFitTextView {
         // checking
         final int childrenHeightSum = getChildrenHeightSum(internalLayout);
         final int containerHeight = scrollView.getMeasuredHeight();
+        final int toleranceHeight = (int)(scrollView.getMeasuredHeight() * 0.1f);
 
-        if (childrenHeightSum < containerHeight && scaleChances <= 2){
+        if (childrenHeightSum + toleranceHeight < containerHeight && scaleChances <= 2){
             Log.d("autofit", "scaleUp procesing");
             // inputs
             final float internalScaleY = internalLayout.getScaleY();
