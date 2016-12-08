@@ -35,10 +35,13 @@ XML usage
 ### In code
 
 in *onCreate* method:
-<pre>AutoFitTextView autoFitTextView = AutoFitTextView.with(scrollView, linearLayout);</pre>
+<pre>AutoFitTextView autoFitTextView = AutoFitTextView.with(scrollView, textLayout);</pre>
 
 in *onDisposed* method:
 <pre>autoFitTextView.recycle()</pre>
+
+## Result
+*textView1* content is fited into the boundaries of fixed ScrollView.
 
 
 
