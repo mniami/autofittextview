@@ -46,7 +46,6 @@ public class AutoFitTextView {
         final ScrollView scrollView = scrollViewReference.get();
 
         if (scrollView != null) {
-            scrollView.setVisibility(View.INVISIBLE);
             scrollView.setOnTouchListener(onTouchListener);
             scrollView.getViewTreeObserver().addOnGlobalLayoutListener(onGlobalLayoutListener);
         }
@@ -77,7 +76,7 @@ public class AutoFitTextView {
 
         if (!processed){
             Log.d("autofit", "nth todo");
-            scrollView.setVisibility(View.VISIBLE);
+            internalLayout.setVisibility(View.VISIBLE);
 
             scaleChances = 0;
             isBlockedScrolling = true;
@@ -137,6 +136,9 @@ public class AutoFitTextView {
         inChanging = true;
 
         try {
+            if (internalLayout.getVisibility() == View.VISIBLE){
+                internalLayout.setVisibility(View.INVISIBLE);
+            }
             final ScrollView.LayoutParams params = new ScrollView.LayoutParams(newContainerWidth, scrollView.getHeight());
             internalLayout.setLayoutParams(params);
             scrollView.updateViewLayout(internalLayout, params);
