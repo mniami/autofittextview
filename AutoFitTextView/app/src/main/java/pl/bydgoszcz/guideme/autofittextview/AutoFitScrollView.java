@@ -109,10 +109,9 @@ public class AutoFitScrollView {
             final float newScale = internalScaleY * (1 + diffProportion);
             final int newContainerWidth = (int) Math.floor(containerWidth / newScale);
 
-            resize(scrollView, internalLayout, newScale, newContainerWidth, false);
-
             scaleChances++;
-            return true;
+
+            return resize(scrollView, internalLayout, newScale, newContainerWidth, false);
         }
         return false;
     }
@@ -131,13 +130,12 @@ public class AutoFitScrollView {
             final float newScale = 1.0f - 1.0f * (internalHeight - containerHeight) / internalHeight;
             final int newContainerWidth = (int) Math.floor(containerWidth / newScale);
 
-            resize(scrollView, internalLayout, newScale, newContainerWidth, true);
-            return true;
+            return resize(scrollView, internalLayout, newScale, newContainerWidth, true);
         }
         return false;
     }
 
-    private void resize(ScrollView scrollView, ViewGroup internalLayout, float newScale, int newContainerWidth, boolean forceChange) {
+    private boolean resize(ScrollView scrollView, ViewGroup internalLayout, float newScale, int newContainerWidth, boolean forceChange) {
         Log.d("autofit", String.format("resize to %s", newScale));
         // flag
 
@@ -159,9 +157,11 @@ public class AutoFitScrollView {
             } finally {
                 inChanging = false;
             }
+            return true;
         }
         else {
             Log.d("autofit", String.format("resize canceled, step already exists %s", step));
+            return false;
         }
     }
 
