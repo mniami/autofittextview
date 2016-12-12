@@ -8,8 +8,10 @@ import android.view.ViewTreeObserver;
 import android.widget.ScrollView;
 
 import java.lang.ref.WeakReference;
+import java.util.LinkedList;
+import java.util.List;
 
-public class AutoFitTextView {
+public class AutoFitScrollView {
     private WeakReference<ScrollView> scrollViewReference;
     private WeakReference<ViewGroup> internalLayoutReference;
 
@@ -21,8 +23,10 @@ public class AutoFitTextView {
 
     protected int scaleChances = 0;
 
-    public static AutoFitTextView with(ScrollView scrollView, ViewGroup childView){
-        final AutoFitTextView autoFitTextView = new AutoFitTextView();
+    protected List<Step> steps;
+
+    public static AutoFitScrollView with(ScrollView scrollView, ViewGroup childView){
+        final AutoFitScrollView autoFitTextView = new AutoFitScrollView();
         autoFitTextView.scrollViewReference = new WeakReference<>(scrollView);
         autoFitTextView.internalLayoutReference = new WeakReference<>(childView);
         autoFitTextView.initialize();
@@ -33,7 +37,7 @@ public class AutoFitTextView {
         onGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                AutoFitTextView.this.onGlobalLayout();
+                AutoFitScrollView.this.onGlobalLayout();
             }
         };
         onTouchListener = new View.OnTouchListener() {
@@ -65,12 +69,13 @@ public class AutoFitTextView {
     private void process(ScrollView scrollView, ViewGroup internalLayout) {
         Log.d("autofit", "process ");
 
-        boolean processed;
+        boolean processed = false;
 
         if (!scaleDown(scrollView, internalLayout)) {
-            processed = scaleUp(scrollView, internalLayout);
-        }
-        else {
+            if (isBlockedScrolling) {
+                processed = scaleUp(scrollView, internalLayout);
+            }
+        } else {
             processed = true;
         }
 
@@ -80,6 +85,7 @@ public class AutoFitTextView {
 
             scaleChances = 0;
             isBlockedScrolling = true;
+            steps.clear();
         }
     }
 
@@ -87,7 +93,7 @@ public class AutoFitTextView {
         // checking
         final int childrenHeightSum = getChildrenHeightSum(internalLayout);
         final int containerHeight = scrollView.getMeasuredHeight();
-        final int toleranceHeight = (int)(scrollView.getMeasuredHeight() * 0.1f);
+        final int toleranceHeight = (int)(scrollView.getMeasuredHeight() * 0.01f);
 
         if (childrenHeightSum + toleranceHeight < containerHeight && scaleChances <= 2){
             Log.d("autofit", "scaleUp procesing");
@@ -103,7 +109,7 @@ public class AutoFitTextView {
             final float newScale = internalScaleY * (1 + diffProportion);
             final int newContainerWidth = (int) Math.floor(containerWidth / newScale);
 
-            resize(scrollView, internalLayout, newScale, newContainerWidth);
+            resize(scrollView, internalLayout, newScale, newContainerWidth, false);
 
             scaleChances++;
             return true;
@@ -125,35 +131,70 @@ public class AutoFitTextView {
             final float newScale = 1.0f - 1.0f * (internalHeight - containerHeight) / internalHeight;
             final int newContainerWidth = (int) Math.floor(containerWidth / newScale);
 
-            resize(scrollView, internalLayout, newScale, newContainerWidth);
+            resize(scrollView, internalLayout, newScale, newContainerWidth, true);
             return true;
         }
         return false;
     }
 
-    private void resize(ScrollView scrollView, ViewGroup internalLayout, float newScale, int newContainerWidth) {
+    private void resize(ScrollView scrollView, ViewGroup internalLayout, float newScale, int newContainerWidth, boolean forceChange) {
+        Log.d("autofit", String.format("resize to %s", newScale));
         // flag
-        inChanging = true;
 
-        try {
+        final Step step = new Step(newScale, newContainerWidth);
+        if (addStep(step, forceChange)) {
+            inChanging = true;
             if (internalLayout.getVisibility() == View.VISIBLE){
                 internalLayout.setVisibility(View.INVISIBLE);
             }
-            final ScrollView.LayoutParams params = new ScrollView.LayoutParams(newContainerWidth, scrollView.getHeight());
-            internalLayout.setLayoutParams(params);
-            scrollView.updateViewLayout(internalLayout, params);
+            try {
+                internalLayout.setPivotX(0);
+                internalLayout.setPivotY(0);
+                internalLayout.setScaleY(newScale);
+                internalLayout.setScaleX(newScale);
 
-            updateChildren(internalLayout);
+                scrollView.scrollTo(0, 0);
+                changeWidth(scrollView, internalLayout, newContainerWidth);
 
-            internalLayout.setPivotX(0);
-            internalLayout.setPivotY(0);
-            internalLayout.setScaleY(newScale);
-            internalLayout.setScaleX(newScale);
-
-            scrollView.scrollTo(0, 0);
+            } finally {
+                inChanging = false;
+            }
         }
-        finally {
-            inChanging = false;
+        else {
+            Log.d("autofit", String.format("resize canceled, step already exists %s", step));
+        }
+    }
+
+    private void changeWidth(ScrollView scrollView, ViewGroup internalLayout, int newWidth){
+        Log.d("autofit", String.format("changeWidth to %s", newWidth));
+
+        final ScrollView.LayoutParams params = new ScrollView.LayoutParams(newWidth, scrollView.getHeight());
+        internalLayout.setLayoutParams(params);
+        scrollView.updateViewLayout(internalLayout, params);
+
+        updateChildren(internalLayout);
+    }
+
+    private boolean addStep(Step newStep, boolean forceChange) {
+        if (steps == null){
+            steps = new LinkedList<>();
+        }
+        if (forceChange){
+            steps.add(newStep);
+            return true;
+        }
+        else {
+            boolean found = false;
+            for (Step step : steps) {
+                if (step.equals(newStep)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                steps.add(newStep);
+            }
+            return !found;
         }
     }
 
@@ -181,6 +222,20 @@ public class AutoFitTextView {
         if (scrollView != null) {
             scrollView.setOnTouchListener(null);
             scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(onGlobalLayoutListener);
+        }
+    }
+
+    private static class Step {
+        private float scale;
+        private int width;
+
+        public Step(float scale, int width){
+            this.scale = scale;
+            this.width = width;
+        }
+
+        public boolean equals(Step step) {
+            return width == step.width && scale == step.scale;
         }
     }
 }

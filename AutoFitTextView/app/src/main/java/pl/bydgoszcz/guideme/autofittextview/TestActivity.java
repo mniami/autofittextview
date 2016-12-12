@@ -4,13 +4,16 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 public class TestActivity extends Activity {
-    private AutoFitTextView autoFitTextView;
+    private AutoFitScrollView autoFitTextView;
     protected TextView textView1;
     protected LinearLayout linearLayout;
     protected ScrollView scrollView;
@@ -24,8 +27,27 @@ public class TestActivity extends Activity {
         linearLayout = (LinearLayout) findViewById(R.id.textLayout);
         scrollView = (ScrollView) findViewById(R.id.scrollView);
         super.onCreate(savedInstanceState);
-        autoFitTextView = AutoFitTextView.with(scrollView, linearLayout);
+        autoFitTextView = AutoFitScrollView.with(scrollView, linearLayout);
         textView1.setText(Html.fromHtml(getString(R.string.long_text_1)));
+        SeekBar seekBar = (SeekBar)findViewById(R.id.seekBar);
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 150 + progress * 14);
+                scrollView.setLayoutParams(params);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         Button button = (Button)findViewById(R.id.button_1);
         button.setOnClickListener(new View.OnClickListener() {
             @Override

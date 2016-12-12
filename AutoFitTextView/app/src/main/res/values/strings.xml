@@ -1,14 +1,8 @@
 <resources>
     <string name="app_name">AutoFitTextView</string>
     <string name="long_text_1">
-        <![CDATA[<p>Line one</p>
-        <p>Line two</p>
-        <p>Line three</p>
-        <p>Line fourth</p>
-        <p>Line fifth</p>
-        <p>Line sixth</p>
-        <p>Line seventh</p>
-        <p>Line eight</p>]]>
+        <![CDATA[<h1>Pierwszy drugi trzeci czwarty piaty szosty siodmy osmy dziewiaty dziesiaty jedenasty dwunasty trzynasty czternasty pietnasty szesnasty siedemnasty</h1>
+       ]]>
     </string>
     <string name="long_text_2">
         <![CDATA[<p>Line one dlkajdfk ajlkj dlkjfajlk dfjlkajd jflkajd lkjfajd lkfjalsdj lkfajdsj lfajlkd jfajdlj flajsdljf lkajdlkf jalkdsjlf jald</p>
