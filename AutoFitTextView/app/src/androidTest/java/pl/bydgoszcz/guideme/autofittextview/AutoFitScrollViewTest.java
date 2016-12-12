@@ -19,11 +19,11 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class AutoFitTextViewTest {
+public class AutoFitScrollViewTest {
     private static final String SAMPLE_TEXT = "<h1>LONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXT\n" +
             "LONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXT\n" +
             "LONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXT</h1>";
-    private AutoFitTextView autoFitTextView;
+    private AutoFitScrollView autoFitTextView;
     private TestActivity testActivity;
     private boolean testFinished;
     @Rule
@@ -36,7 +36,7 @@ public class AutoFitTextViewTest {
         testActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                autoFitTextView = AutoFitTextView.with(testActivity.scrollView, testActivity.linearLayout);
+                autoFitTextView = AutoFitScrollView.with(testActivity.scrollView, testActivity.linearLayout);
             }
         });
     }
