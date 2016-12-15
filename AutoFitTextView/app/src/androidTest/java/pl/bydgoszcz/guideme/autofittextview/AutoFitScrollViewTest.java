@@ -1,12 +1,13 @@
 package pl.bydgoszcz.guideme.autofittextview;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.text.Html;
 import android.view.ViewTreeObserver;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,14 +31,12 @@ import static org.mockito.Mockito.mock;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class AutoFitScrollViewTest {
-    private static final String SAMPLE_TEXT = "<h1>LONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXT\n" +
-            "LONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXT\n" +
-            "LONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXTLONG TEXT</h1>";
     private AutoFitScrollView autoFitTextView;
     private TestActivity testActivity;
     private boolean initialized, finished;
+    @NonNull
     @Rule
-    public ActivityTestRule<TestActivity> activityRule = new ActivityTestRule<>(TestActivity.class);
+    public final ActivityTestRule<TestActivity> activityRule = new ActivityTestRule<>(TestActivity.class);
 
     @Before
     public void setUp() {
@@ -50,7 +49,8 @@ public class AutoFitScrollViewTest {
                 autoFitTextView.logger = mock(Logger.class);
 
                 doAnswer(new Answer<Void>() {
-                    public Void answer(InvocationOnMock invocation) {
+                    @Nullable
+                    public Void answer(@NonNull InvocationOnMock invocation) {
                         Object[] args = invocation.getArguments();
                         System.out.println(Arrays.toString(args));
                         return null;
@@ -68,21 +68,17 @@ public class AutoFitScrollViewTest {
         });
     }
 
-    @After
-    public void tearDown() {
-    }
-
     @Test
     public void test40() throws InterruptedException {
-        for (int i=40; i < 300; i+=5) {
+        for (int i = 40; i < 300; i += 5) {
             testContent(i, createContent(i));
         }
     }
 
-    private String createContent(int wordsCount){
-        final String word = "Witaj ";
+    private String createContent(int wordsCount) {
+        final String word = "Hello ";
         StringBuilder sb = new StringBuilder(wordsCount * word.length());
-        for (int i = 0; i < wordsCount; i++){
+        for (int i = 0; i < wordsCount; i++) {
             sb.append(word);
         }
         return sb.toString();
@@ -95,10 +91,11 @@ public class AutoFitScrollViewTest {
         testActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                //noinspection deprecation
                 testActivity.textView1.setText(Html.fromHtml(content));
                 try {
                     Thread.sleep(200);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignored) {
                 }
                 finished = true;
             }

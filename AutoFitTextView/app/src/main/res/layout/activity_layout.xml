@@ -5,9 +5,9 @@
               android:orientation="vertical">
     <TextView
         android:id="@+id/title"
-        android:text="Test content below"
+        android:text="@string/test_content_below"
         android:textColor="@color/white"
-        android:textSize="24dp"
+        android:textSize="24sp"
         android:background="@color/colorPrimaryDark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_below="@id/title"
         android:background="@color/colorAccent"
-        android:layout_height="100dp">
+        android:layout_height="100sp">
 
         <LinearLayout
             android:id="@+id/textLayout"
@@ -27,14 +27,14 @@
 
             <TextView
                 android:id="@+id/textView1"
-                android:textSize="34dp"
+                android:textSize="34sp"
                 android:textColor="@color/white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
             <TextView
                 android:id="@+id/textView2"
-                android:textSize="34dp"
+                android:textSize="34sp"
                 android:textColor="@color/white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -48,23 +48,27 @@
         android:layout_alignParentBottom="true"
         android:orientation="horizontal">
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/button_1"
-            android:text="Case 1"
+            android:text="@string/case_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/button_2"
-            android:text="Case 2"
+            android:text="@string/case_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/button_3"
-            android:text="Case 3"
+            android:text="@string/case_3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/button_4"
-            android:text="Case 4"
+            android:text="@string/case_4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/></LinearLayout>
 

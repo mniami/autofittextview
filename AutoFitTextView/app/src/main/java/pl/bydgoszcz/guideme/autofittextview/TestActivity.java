@@ -13,13 +13,14 @@ import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+@SuppressWarnings("deprecation")
 public class TestActivity extends Activity {
     private AutoFitScrollView autoFitTextView;
     private TextView textView2;
-    protected TextView textView1;
-    protected LinearLayout linearLayout;
-    protected ScrollView scrollView;
-    protected boolean created;
+    TextView textView1;
+    LinearLayout linearLayout;
+    ScrollView scrollView;
+    boolean created;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,8 @@ public class TestActivity extends Activity {
     }
 
     private void setText(Spanned spanned) {
+        autoFitTextView.reset();
+
         textView1.setText(spanned);
         textView2.setText(spanned);
     }
