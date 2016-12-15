@@ -1,10 +1,11 @@
 # AutoFitTextView
+Android component that solve the problem with not auto fiting content to the boundaries. Working on scaling instead of font size changing. Can operate on any view inside the container which is ScrollView.
 
 ## Component condition
-Please notice it is very early version of this product.
+Please notice it is early version of this product.
 
 ## Problem solving
-Implementation that auto fit your internal layout to the boundries defined by wrapped **ScrollView**.
+Auto fit your internal layout content to the boundries defined by wrapped **ScrollView**.
 
 ## The reason behind
 I cannot find any good solution that fit my internal content to the boundries so I decided to write it from sratch by my own.
