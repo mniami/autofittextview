@@ -1,7 +1,5 @@
 package pl.bydgoszcz.guideme.autofittextview;
 
-import android.support.annotation.NonNull;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -10,7 +8,6 @@ import android.widget.ScrollView;
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class AutoFitScrollView {
     private static final int MAX_STEPS_COUNT = 20;
@@ -19,19 +16,16 @@ public class AutoFitScrollView {
 
     private ViewTreeObserver.OnGlobalLayoutListener onGlobalLayoutListener;
 
-    Logger logger;
-
+    private static KLogger logger = KLogger.from("AutoFitScrollView");
     private boolean inChanging = false;
-    private boolean isBlockedScrolling;
+    boolean isBlockedScrolling = true;
 
     private List<Step> steps;
 
-    @NonNull
     public static AutoFitScrollView with(ScrollView scrollView, ViewGroup childView) {
         final AutoFitScrollView autoFitTextView = new AutoFitScrollView();
         autoFitTextView.scrollViewReference = new WeakReference<>(scrollView);
         autoFitTextView.internalLayoutReference = new WeakReference<>(childView);
-        autoFitTextView.logger = Logger.getLogger("AutoFitScrollView");
         autoFitTextView.initialize();
         return autoFitTextView;
     }
@@ -46,23 +40,20 @@ public class AutoFitScrollView {
 
     public void reset(){
         if (steps != null){
+            final ViewGroup internalLayout = internalLayoutReference.get();
+            if (internalLayout != null) {
+                internalLayout.setPivotX(0);
+                internalLayout.setPivotY(0);
+                internalLayout.setScaleY(1f);
+                internalLayout.setScaleX(1f);
+            }
             steps.clear();
         }
     }
 
     private void initialize() {
-        onGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                AutoFitScrollView.this.onGlobalLayout();
-            }
-        };
-        final View.OnTouchListener onTouchListener = new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return isBlockedScrolling;
-            }
-        };
+        onGlobalLayoutListener = AutoFitScrollView.this::onGlobalLayout;
+        View.OnTouchListener onTouchListener = (v, event) -> isBlockedScrolling;
 
         final ScrollView scrollView = scrollViewReference.get();
 
@@ -73,7 +64,7 @@ public class AutoFitScrollView {
     }
 
     private void onGlobalLayout() {
-        logger.fine("onGlobalLayout");
+        logger.fine(() -> "onGlobalLayout");
 
         final ScrollView scrollView = scrollViewReference.get();
         final ViewGroup internalLayout = internalLayoutReference.get();
@@ -83,8 +74,8 @@ public class AutoFitScrollView {
         }
     }
 
-    private void process(@NonNull ScrollView scrollView, @NonNull ViewGroup internalLayout) {
-        logger.fine("process ");
+    private void process(ScrollView scrollView, ViewGroup internalLayout) {
+        logger.fine(() -> "process");
 
         boolean processed = false;
 
@@ -97,20 +88,22 @@ public class AutoFitScrollView {
         }
 
         if (!processed) {
-            logger.fine("nth todo");
-
+            logger.fine(() -> "nth todo");
+            if (internalLayout.getVisibility() == View.INVISIBLE){
+                internalLayout.setVisibility(View.VISIBLE);
+            }
             isBlockedScrolling = true;
         }
     }
 
-    private boolean scaleUp(@NonNull ScrollView scrollView, @NonNull ViewGroup internalLayout) {
+    private boolean scaleUp(ScrollView scrollView, ViewGroup internalLayout) {
         // checking
         final int childrenHeightSum = getChildrenHeightSum(internalLayout);
         final int containerHeight = scrollView.getMeasuredHeight();
         final int toleranceHeight = (int) (scrollView.getMeasuredHeight() * 0.01f);
 
         if (childrenHeightSum + toleranceHeight < containerHeight) {
-            logger.fine("scaleUp processing");
+            logger.fine(() -> "scale up processing");
             // inputs
             final float internalScaleY = internalLayout.getScaleY();
             final int containerWidth = scrollView.getMeasuredWidth();
@@ -128,7 +121,7 @@ public class AutoFitScrollView {
         return false;
     }
 
-    private boolean scaleDown(@NonNull ScrollView scrollView, @NonNull ViewGroup internalLayout) {
+    private boolean scaleDown(ScrollView scrollView, ViewGroup internalLayout) {
         // inputs
         final int containerHeight = scrollView.getMeasuredHeight();
         final int containerWidth = scrollView.getMeasuredWidth();
@@ -136,7 +129,7 @@ public class AutoFitScrollView {
         final int scaledHeight = (int) Math.floor(internalHeight * internalLayout.getScaleY());
 
         if (containerHeight < scaledHeight) {
-            logger.fine("scaleDown processing");
+            logger.fine(() -> "scale down processing");
 
             // outputs
             final float newScale = 1.0f - 1.0f * (internalHeight - containerHeight) / internalHeight;
@@ -147,14 +140,18 @@ public class AutoFitScrollView {
         return false;
     }
 
-    private boolean resize(@NonNull ScrollView scrollView, @NonNull ViewGroup internalLayout, float newScale, int newContainerWidth, boolean forceChange) {
-        logger.fine(String.format("resize to %s", newScale));
+    private boolean resize(ScrollView scrollView, ViewGroup internalLayout, float newScale, int newContainerWidth, boolean forceChange) {
+        logger.fine(() -> String.format("resize to %s", newScale));
         // flag
 
         final Step step = new Step(newScale, newContainerWidth);
         if (addStep(step, forceChange)) {
             inChanging = true;
             try {
+                if (internalLayout.getVisibility() == View.VISIBLE){
+                    internalLayout.setVisibility(View.INVISIBLE);
+                }
+
                 internalLayout.setPivotX(0);
                 internalLayout.setPivotY(0);
                 internalLayout.setScaleY(newScale);
@@ -168,13 +165,13 @@ public class AutoFitScrollView {
             }
             return true;
         } else {
-            logger.fine(String.format("resize canceled, step already exists %s", step));
+            logger.fine(() -> String.format("resize canceled, step already exists %s", step));
             return false;
         }
     }
 
-    private void changeWidth(@NonNull ScrollView scrollView, @NonNull ViewGroup internalLayout, int newWidth) {
-        logger.fine(String.format("changeWidth to %s", newWidth));
+    private void changeWidth(ScrollView scrollView, ViewGroup internalLayout, int newWidth) {
+        logger.fine(() -> String.format("changeWidth to %s", newWidth));
 
         final ScrollView.LayoutParams params = new ScrollView.LayoutParams(newWidth, scrollView.getHeight());
         internalLayout.setLayoutParams(params);
@@ -183,7 +180,7 @@ public class AutoFitScrollView {
         updateChildren(internalLayout);
     }
 
-    private boolean addStep(@NonNull Step newStep, boolean forceChange) {
+    private boolean addStep(Step newStep, boolean forceChange) {
         if (steps == null) {
             steps = new LinkedList<>();
         }
@@ -212,7 +209,7 @@ public class AutoFitScrollView {
         steps.add(newStep);
     }
 
-    private void updateChildren(@NonNull ViewGroup internalLayout) {
+    private void updateChildren(ViewGroup internalLayout) {
         View child;
 
         for (int i = 0; i < internalLayout.getChildCount(); i++) {
@@ -223,7 +220,7 @@ public class AutoFitScrollView {
         }
     }
 
-    private int getChildrenHeightSum(@NonNull ViewGroup internalLayout) {
+    private int getChildrenHeightSum(ViewGroup internalLayout) {
         int sum = 0;
         for (int i = 0; i < internalLayout.getChildCount(); i++) {
             sum += internalLayout.getChildAt(i).getMeasuredHeight();
@@ -232,16 +229,16 @@ public class AutoFitScrollView {
     }
 
     private static class Step {
-        private final float scale;
-        private final int width;
+        private float scale;
+        private int width;
 
-        public Step(float scale, int width) {
+        Step(float scale, int width) {
             this.scale = scale;
             this.width = width;
         }
 
-        public boolean equals(@NonNull Step step) {
-            return width == step.width && scale == step.scale;
+        public boolean equals(Step step) {
+            return step != null && width == step.width && Float.compare(scale, step.scale) == 0;
         }
     }
 }
