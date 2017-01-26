@@ -82,4 +82,16 @@
         android:layout_marginBottom="53dp"
         android:id="@+id/seekBar"
         android:layout_width="240dp"/>
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/seekBar"
+        android:layout_alignRight="@+id/seekBar"
+        android:layout_alignEnd="@+id/seekBar"
+        android:layout_marginRight="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="11dp"
+        android:id="@+id/textViewStatus"/>
 </RelativeLayout>
